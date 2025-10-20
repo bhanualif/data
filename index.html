@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabel Device, QC, Pairing</title>
+  <style>
+    body { font-family: Arial; margin: 20px; background: #f6f8fa; }
+    h2 { margin-top: 30px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; background: white; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #e8e8e8; }
+    button { margin-top: 10px; padding: 8px 14px; }
+  </style>
+</head>
+<body>
+  <h1>Data Device, QC, dan Pairing</h1>
+
+  <button onclick="seedData()">Tambah Data Contoh</button>
+  <button onclick="clearData()">Hapus Semua Data</button>
+
+  <h2>Device Table</h2>
+  <table id="deviceTable">
+    <thead>
+      <tr>
+        <th>Device ID</th>
+        <th>Device Name</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>QC Table</h2>
+  <table id="qcTable">
+    <thead>
+      <tr>
+        <th>Device ID</th>
+        <th>Status QC</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Pairing Table</h2>
+  <table id="pairingTable">
+    <thead>
+      <tr>
+        <th>Device ID</th>
+        <th>Merchant ID</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+ <script>
+    const STORAGE_KEY = 'device-app';
+
+    // === Fungsi bantu localStorage ===
+    function getData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : { devices: [], qc: [], pairing: [] };
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    // === Fungsi render tabel ===
+    function renderTables() {
+      const data = getData();
+      renderDeviceTable(data.devices);
+      renderQCTable(data.qc);
+      renderPairingTable(data.pairing);
+    }
+
+    function renderDeviceTable(devices) {
+      const tbody = document.querySelector('#deviceTable tbody');
+      tbody.innerHTML = '';
+      devices.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${d.deviceId}</td><td>${d.deviceName}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderQCTable(qcList) {
+      const tbody = document.querySelector('#qcTable tbody');
+      tbody.innerHTML = '';
+      qcList.forEach(q => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${q.deviceId}</td><td>${q.status}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderPairingTable(pairings) {
+      const tbody = document.querySelector('#pairingTable tbody');
+      tbody.innerHTML = '';
+      pairings.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.deviceId}</td><td>${p.merchantId}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // === Fungsi tambahan untuk demo ===
+    function seedData() {
+      const data = getData();
+      // contoh dummy data
+      data.devices = [
+        { deviceId: 'SBX-0001', deviceName: 'sound box premium' },
+        { deviceId: 'SBX-0002', deviceName: 'sound box pocket' },
+      ];
+      data.qc = [
+        { deviceId: 'SBX-0001', status: 'QC OK' },
+        { deviceId: 'SBX-0002', status: 'QC Pending' },
+      ];
+      data.pairing = [
+        { deviceId: 'SBX-0001', merchantId: 'M-1001' },
+      ];
+      saveData(data);
+      renderTables();
+    }
+
+    function clearData() {
+      localStorage.removeItem(STORAGE_KEY);
+      renderTables();
+    }
+
+    // === Inisialisasi ===
+    renderTables();
+  </script>
+</body>
+</html>
