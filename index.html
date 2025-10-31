@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tabel Device, QC, Pairing</title>
+  <title>Tabel Device, QC, dan Pairing</title>
   <style>
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -37,6 +37,12 @@
     button:hover {
       background: #2980b9;
       transform: translateY(-2px);
+    }
+    input {
+      padding: 8px 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin: 5px;
     }
     table {
       border-collapse: collapse;
@@ -89,12 +95,28 @@
   <button onclick="seedData()">Tambah Data Contoh</button>
   <button onclick="clearData()">Hapus Semua Data</button>
 
+  <h2>Tambah Device Baru</h2>
+  <input id="deviceId" placeholder="Device ID">
+  <input id="deviceName" placeholder="Device Name">
+  <button onclick="addDevice()">Tambah Device</button>
+
+  <h2>Tambah Data QC</h2>
+  <input id="qcDeviceId" placeholder="Device ID">
+  <input id="qcStatus" placeholder="Status QC (mis. QC OK)">
+  <button onclick="addQC()">Tambah QC</button>
+
+  <h2>Tambah Data Pairing</h2>
+  <input id="pairDeviceId" placeholder="Device ID">
+  <input id="merchantId" placeholder="Merchant ID">
+  <button onclick="addPairing()">Tambah Pairing</button>
+
   <h2>Device Table</h2>
   <table id="deviceTable">
     <thead>
       <tr>
         <th>Device ID</th>
         <th>Device Name</th>
+        <th>Aksi</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -106,6 +128,7 @@
       <tr>
         <th>Device ID</th>
         <th>Status QC</th>
+        <th>Aksi</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -117,6 +140,7 @@
       <tr>
         <th>Device ID</th>
         <th>Merchant ID</th>
+        <th>Aksi</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -146,7 +170,11 @@
       tbody.innerHTML = "";
       devices.forEach(d => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${d.deviceId}</td><td>${d.deviceName}</td>`;
+        tr.innerHTML = `
+          <td>${d.deviceId}</td>
+          <td>${d.deviceName}</td>
+          <td><button onclick="deleteItem('devices','${d.deviceId}')">Hapus</button></td>
+        `;
         tbody.appendChild(tr);
       });
     }
@@ -156,7 +184,11 @@
       tbody.innerHTML = "";
       qcList.forEach(q => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${q.deviceId}</td><td>${q.status}</td>`;
+        tr.innerHTML = `
+          <td>${q.deviceId}</td>
+          <td>${q.status}</td>
+          <td><button onclick="deleteItem('qc','${q.deviceId}')">Hapus</button></td>
+        `;
         tbody.appendChild(tr);
       });
     }
@@ -166,9 +198,66 @@
       tbody.innerHTML = "";
       pairings.forEach(p => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${p.deviceId}</td><td>${p.merchantId}</td>`;
+        tr.innerHTML = `
+          <td>${p.deviceId}</td>
+          <td>${p.merchantId}</td>
+          <td><button onclick="deleteItem('pairing','${p.deviceId}')">Hapus</button></td>
+        `;
         tbody.appendChild(tr);
       });
+    }
+
+    async function addDevice() {
+      const deviceId = document.getElementById("deviceId").value.trim();
+      const deviceName = document.getElementById("deviceName").value.trim();
+      if (!deviceId || !deviceName) return alert("Isi semua kolom device!");
+
+      const res = await fetch(`${API_BASE}/devices`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId, deviceName }),
+      });
+      const data = await res.json();
+      alert(data.message || "Device ditambahkan!");
+      renderTables();
+    }
+
+    async function addQC() {
+      const deviceId = document.getElementById("qcDeviceId").value.trim();
+      const status = document.getElementById("qcStatus").value.trim();
+      if (!deviceId || !status) return alert("Isi semua kolom QC!");
+
+      const res = await fetch(`${API_BASE}/qc`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId, status }),
+      });
+      const data = await res.json();
+      alert(data.message || "QC ditambahkan!");
+      renderTables();
+    }
+
+    async function addPairing() {
+      const deviceId = document.getElementById("pairDeviceId").value.trim();
+      const merchantId = document.getElementById("merchantId").value.trim();
+      if (!deviceId || !merchantId) return alert("Isi semua kolom pairing!");
+
+      const res = await fetch(`${API_BASE}/pairing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId, merchantId }),
+      });
+      const data = await res.json();
+      alert(data.message || "Pairing ditambahkan!");
+      renderTables();
+    }
+
+    async function deleteItem(type, id) {
+      if (!confirm(`Yakin hapus data ${type} dengan ID ${id}?`)) return;
+      const res = await fetch(`${API_BASE}/${type}/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      alert(data.message || "Data dihapus!");
+      renderTables();
     }
 
     async function seedData() {
