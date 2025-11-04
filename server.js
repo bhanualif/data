@@ -1,9 +1,17 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Serve file statis dari folder frontend
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 // =====================
 //  In-Memory Database
@@ -25,15 +33,11 @@ let data = {
 // =====================
 //  ROUTES
 // =====================
-
-// Get all data
 app.get("/api/devices", (req, res) => res.status(200).json(data.devices));
 app.get("/api/qc", (req, res) => res.status(200).json(data.qc));
 app.get("/api/pairing", (req, res) => res.status(200).json(data.pairing));
 
-// =====================
-//  CREATE ENDPOINTS
-// =====================
+// CREATE ENDPOINTS
 app.post("/api/devices", (req, res) => {
   const { deviceId, deviceName } = req.body;
   if (!deviceId || !deviceName)
@@ -61,9 +65,7 @@ app.post("/api/pairing", (req, res) => {
   res.status(201).json({ message: "✅ Pairing berhasil ditambahkan", pairing: data.pairing });
 });
 
-// =====================
-//  RESET / CLEAR DATA
-// =====================
+// RESET / CLEAR DATA
 app.post("/api/seed", (req, res) => {
   data = {
     devices: [
@@ -86,9 +88,6 @@ app.delete("/api/clear", (req, res) => {
   res.status(200).json({ message: "🧹 Semua data berhasil dihapus" });
 });
 
-// =====================
-//  DELETE per kategori
-// =====================
 app.delete("/api/devices/:id", (req, res) => {
   const { id } = req.params;
   data.devices = data.devices.filter(d => d.deviceId !== id);
@@ -105,6 +104,13 @@ app.delete("/api/pairing/:id", (req, res) => {
   const { id } = req.params;
   data.pairing = data.pairing.filter(p => p.deviceId !== id);
   res.json({ message: `🗑️ Pairing ${id} dihapus`, pairing: data.pairing });
+});
+
+// =====================
+//  ROOT ROUTE
+// =====================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
 // =====================
