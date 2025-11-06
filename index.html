@@ -70,26 +70,17 @@
       font-size: 0.9em;
       letter-spacing: 0.5px;
     }
-    tr:nth-child(even) td {
-      background: #f8fafc;
+    tr:nth-child(even) td { background: #f8fafc; }
+    tr:hover td { background: #eef6ff; }
+    .logout {
+      float: right;
+      background: #e74c3c;
     }
-    tr:hover td {
-      background: #eef6ff;
-    }
-    @media (max-width: 700px) {
-      body {
-        margin: 15px;
-      }
-      table, th, td {
-        font-size: 0.9em;
-      }
-      button {
-        width: 100%;
-      }
-    }
+    .logout:hover { background: #c0392b; }
   </style>
 </head>
 <body>
+  <button class="logout" onclick="logout()">Logout</button>
   <h1>Data Device, QC, dan Pairing</h1>
 
   <button onclick="seedData()">Tambah Data Contoh</button>
@@ -113,11 +104,7 @@
   <h2>Device Table</h2>
   <table id="deviceTable">
     <thead>
-      <tr>
-        <th>Device ID</th>
-        <th>Device Name</th>
-        <th>Aksi</th>
-      </tr>
+      <tr><th>Device ID</th><th>Device Name</th><th>Aksi</th></tr>
     </thead>
     <tbody></tbody>
   </table>
@@ -125,11 +112,7 @@
   <h2>QC Table</h2>
   <table id="qcTable">
     <thead>
-      <tr>
-        <th>Device ID</th>
-        <th>Status QC</th>
-        <th>Aksi</th>
-      </tr>
+      <tr><th>Device ID</th><th>Status QC</th><th>Aksi</th></tr>
     </thead>
     <tbody></tbody>
   </table>
@@ -137,16 +120,17 @@
   <h2>Pairing Table</h2>
   <table id="pairingTable">
     <thead>
-      <tr>
-        <th>Device ID</th>
-        <th>Merchant ID</th>
-        <th>Aksi</th>
-      </tr>
+      <tr><th>Device ID</th><th>Merchant ID</th><th>Aksi</th></tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <script>
+    // 🔒 Cek login
+    if (!localStorage.getItem("token")) {
+      window.location.href = "login.html";
+    }
+
     const API_BASE = "http://localhost:3000/api";
 
     async function fetchData(endpoint) {
@@ -211,7 +195,6 @@
       const deviceId = document.getElementById("deviceId").value.trim();
       const deviceName = document.getElementById("deviceName").value.trim();
       if (!deviceId || !deviceName) return alert("Isi semua kolom device!");
-
       const res = await fetch(`${API_BASE}/devices`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -226,7 +209,6 @@
       const deviceId = document.getElementById("qcDeviceId").value.trim();
       const status = document.getElementById("qcStatus").value.trim();
       if (!deviceId || !status) return alert("Isi semua kolom QC!");
-
       const res = await fetch(`${API_BASE}/qc`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -241,7 +223,6 @@
       const deviceId = document.getElementById("pairDeviceId").value.trim();
       const merchantId = document.getElementById("merchantId").value.trim();
       if (!deviceId || !merchantId) return alert("Isi semua kolom pairing!");
-
       const res = await fetch(`${API_BASE}/pairing`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -268,6 +249,12 @@
     async function clearData() {
       await fetch(`${API_BASE}/clear`, { method: "DELETE" });
       renderTables();
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      window.location.href = "login.html";
     }
 
     renderTables();
