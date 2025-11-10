@@ -30,6 +30,39 @@ let data = {
   ]
 };
 
+// Authentication data
+let users = [];
+let sessions = {};
+
+// =====================
+//  AUTHENTICATION ROUTES
+// =====================
+app.post("/api/register", (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ error: "Username dan password wajib diisi" });
+
+  if (users.find(u => u.username === username))
+    return res.status(409).json({ error: "Username sudah digunakan" });
+
+  users.push({ username, password });
+  res.status(201).json({ message: "Registrasi berhasil!" });
+});
+
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ error: "Username dan password wajib diisi" });
+
+  const user = users.find(u => u.username === username && u.password === password);
+  if (!user)
+    return res.status(401).json({ error: "Username atau password salah" });
+
+  const token = Math.random().toString(36).substring(2);
+  sessions[token] = username;
+  res.json({ message: "Login berhasil!", token });
+});
+
 // =====================
 //  ROUTES
 // =====================
@@ -107,10 +140,18 @@ app.delete("/api/pairing/:id", (req, res) => {
 });
 
 // =====================
-//  ROOT ROUTE
+//  HTML ROUTES
 // =====================
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "./index.html"));
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "./login.html"));
+});
+
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "./register.html"));
 });
 
 // =====================
