@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Soundbox</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+    }
+
+    .navbar {
+      background: #0984e3;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 40px 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .card h2 {
+      margin-bottom: 10px;
+      font-size: 40px;
+      color: #0984e3;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 18px;
+      color: #636e72;
+    }
+
+    /* Optional: beda warna tiap card */
+    .card:nth-child(1) h2 { color: #6c5ce7; }
+    .card:nth-child(2) h2 { color: #00b894; }
+    .card:nth-child(3) h2 { color: #fd79a8; }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">📊 Dashboard Soundbox</div>
+
+  <div class="container">
+    <div class="card">
+      <h2 id="totalDevices">0</h2>
+      <p>Total Soundbox</p>
+    </div>
+
+    <div class="card">
+      <h2 id="totalPairing">0</h2>
+      <p>Total Pairing</p>
+    </div>
+
+    <div class="card">
+      <h2 id="totalQC">0</h2>
+      <p>Total QC</p>
+    </div>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        const d = await fetch("/api/devices").then(res => res.json());
+        const p = await fetch("/api/pairing").then(res => res.json());
+        const q = await fetch("/api/qc").then(res => res.json());
+
+        document.getElementById("totalDevices").textContent = d.length;
+        document.getElementById("totalPairing").textContent = p.length;
+        document.getElementById("totalQC").textContent = q.length;
+      } catch (err) {
+        console.error("Gagal load data:", err);
+      }
+    }
+
+    // Load pertama kali
+    loadDashboard();
+
+    // Auto-refresh setiap 5 detik
+    setInterval(loadDashboard, 5000);
+  </script>
+
+</body>
+</html>
