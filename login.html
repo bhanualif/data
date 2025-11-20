@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <title>Login</title>
@@ -13,16 +12,14 @@
       align-items: center;
       height: 100vh;
     }
-
     .card {
       background: white;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 320px;
       text-align: center;
     }
-
     input {
       width: 90%;
       padding: 10px;
@@ -30,9 +27,8 @@
       border: 1px solid #ccc;
       border-radius: 6px;
     }
-
     button {
-      background: #3498db;
+      background: #2980b9;
       color: white;
       border: none;
       padding: 10px 20px;
@@ -41,19 +37,12 @@
       font-weight: bold;
       margin-top: 10px;
     }
-
-    button:hover {
-      background: #2980b9;
-    }
-
-    a {
-      color: #3498db;
-      text-decoration: none;
-    }
+    button:hover { background: #1f6fa5; }
+    a { color: #3498db; text-decoration: none; }
   </style>
 </head>
-
 <body>
+
   <div class="card">
     <h2>Login</h2>
     <input id="username" placeholder="Username">
@@ -63,34 +52,28 @@
   </div>
 
   <script>
-    const API = "http://localhost:3000/api";
-
     async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      if (!username || !password) return alert("Isi semua kolom!");
 
-      try {
-        const res = await fetch(`${API}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
 
-        const data = await res.json();
-        if (!res.ok) {
-          return alert(data.error || data.message || "Login gagal");
-        }
+      const data = await res.json();
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("username", username);
-        window.location.href = "index.html";
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Terjadi kesalahan saat login");
-      }
+      if (!res.ok) return alert("Username atau password salah!");
+
+      // Simpan session
+      localStorage.setItem("logged", "true");
+      localStorage.setItem("user", username);
+
+      // Masuk dashboard
+      window.location.href = "dashboard.html";
     }
   </script>
-</body>
 
+</body>
 </html>
