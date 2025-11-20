@@ -3,105 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Soundbox</title>
+
   <style>
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: "Poppins", sans-serif;
       background: #f0f2f5;
     }
 
     .navbar {
-      background: #0984e3;
+      background: #3498db;
+      padding: 18px;
       color: white;
-      padding: 15px;
       text-align: center;
       font-size: 22px;
       font-weight: bold;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .welcome {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 600;
     }
 
     .container {
       max-width: 1000px;
-      margin: 40px auto;
+      margin: 30px auto;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 25px;
+      gap: 20px;
     }
 
     .card {
       background: white;
-      padding: 40px 20px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      border-radius: 14px;
       text-align: center;
-      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      transition: 0.2s;
     }
 
     .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.15);
     }
 
-    .card h2 {
-      margin-bottom: 10px;
-      font-size: 40px;
+    .card h1 {
+      font-size: 44px;
       color: #0984e3;
     }
 
-    .card p {
-      margin: 0;
-      font-size: 18px;
-      color: #636e72;
+    .btn-area {
+      text-align: center;
+      margin-top: 40px;
     }
 
-    /* Optional: beda warna tiap card */
-    .card:nth-child(1) h2 { color: #6c5ce7; }
-    .card:nth-child(2) h2 { color: #00b894; }
-    .card:nth-child(3) h2 { color: #fd79a8; }
+    .btn {
+      padding: 14px 30px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      margin: 0 10px;
+    }
+
+    .btn-main { background: #3498db; color: white; }
+    .btn-logout { background: #d63031; color: white; }
+
+    .btn-main:hover { background: #050404e9; }
+    .btn-logout:hover { background: #b32021; }
   </style>
+
 </head>
 <body>
 
   <div class="navbar">📊 Dashboard Soundbox</div>
 
+  <div class="welcome">
+    Selamat datang, <span id="userDisplay"></span> 👋
+  </div>
+
   <div class="container">
     <div class="card">
-      <h2 id="totalDevices">0</h2>
+      <h1 id="totalDevices">0</h1>
       <p>Total Soundbox</p>
     </div>
 
     <div class="card">
-      <h2 id="totalPairing">0</h2>
+      <h1 id="totalPairing">0</h1>
       <p>Total Pairing</p>
     </div>
 
     <div class="card">
-      <h2 id="totalQC">0</h2>
+      <h1 id="totalQC">0</h1>
       <p>Total QC</p>
     </div>
   </div>
 
-  <script>
-    async function loadDashboard() {
-      try {
-        const d = await fetch("/api/devices").then(res => res.json());
-        const p = await fetch("/api/pairing").then(res => res.json());
-        const q = await fetch("/api/qc").then(res => res.json());
+  <div class="btn-area">
+    <button class="btn btn-main" onclick="goToMain()">➡ Halaman Utama</button>
+    <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+  </div>
 
-        document.getElementById("totalDevices").textContent = d.length;
-        document.getElementById("totalPairing").textContent = p.length;
-        document.getElementById("totalQC").textContent = q.length;
-      } catch (err) {
-        console.error("Gagal load data:", err);
-      }
+  <script>
+    if (!localStorage.getItem("logged")) {
+      window.location.href = "login.html";
     }
 
-    // Load pertama kali
-    loadDashboard();
+    document.getElementById("userDisplay").textContent =
+      localStorage.getItem("user");
 
-    // Auto-refresh setiap 5 detik
-    setInterval(loadDashboard, 5000);
+    async function loadDashboard() {
+      const d = await fetch("/api/devices").then(r => r.json());
+      const p = await fetch("/api/pairing").then(r => r.json());
+      const q = await fetch("/api/qc").then(r => r.json());
+
+      document.getElementById("totalDevices").textContent = d.length;
+      document.getElementById("totalPairing").textContent = p.length;
+      document.getElementById("totalQC").textContent = q.length;
+    }
+
+    loadDashboard();
+    setInterval(loadDashboard, 2000);
+
+    function goToMain() {
+      window.location.href = "index.html";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
   </script>
 
 </body>
