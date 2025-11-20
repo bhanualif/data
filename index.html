@@ -77,10 +77,30 @@
       background: #e74c3c;
     }
     .logout:hover { background: #c0392b; }
+
+    .back-btn {
+      background: 3#3498db;
+      margin-right: 20px;
+    }
+    .back-btn:hover {
+      background: #050404e9;
+    }
   </style>
 </head>
+
 <body>
+
+  <!-- 🔒 LOGIN CHECK -->
+  <script>
+    if (!localStorage.getItem("logged")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <!-- 🔘 TOMBOL NAVIGASI -->
+  <button class="back-btn" onclick="goDashboard()">⬅ Back</button>
   <button class="logout" onclick="logout()">Logout</button>
+
   <h1>Data Device, QC, dan Pairing</h1>
 
   <button onclick="seedData()">Tambah Data Contoh</button>
@@ -126,24 +146,22 @@
   </table>
 
   <script>
-    // 🔒 Cek login
-    if (!localStorage.getItem("token")) {
-      window.location.href = "login.html";
-    }
-
     const API_BASE = "http://localhost:3000/api";
 
+    // 🔹 FETCH DATA GENERIC
     async function fetchData(endpoint) {
       const res = await fetch(`${API_BASE}/${endpoint}`);
       return await res.json();
     }
 
+    // 🔹 RENDER DATA KE TABEL
     async function renderTables() {
       const [devices, qc, pairing] = await Promise.all([
         fetchData("devices"),
         fetchData("qc"),
         fetchData("pairing"),
       ]);
+
       renderDeviceTable(devices);
       renderQCTable(qc);
       renderPairingTable(pairing);
@@ -191,17 +209,18 @@
       });
     }
 
+    // 🔹 CRUD FUNCTIONS
     async function addDevice() {
       const deviceId = document.getElementById("deviceId").value.trim();
       const deviceName = document.getElementById("deviceName").value.trim();
       if (!deviceId || !deviceName) return alert("Isi semua kolom device!");
-      const res = await fetch(`${API_BASE}/devices`, {
+
+      await fetch(`${API_BASE}/devices`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId, deviceName }),
       });
-      const data = await res.json();
-      alert(data.message || "Device ditambahkan!");
+
       renderTables();
     }
 
@@ -209,13 +228,13 @@
       const deviceId = document.getElementById("qcDeviceId").value.trim();
       const status = document.getElementById("qcStatus").value.trim();
       if (!deviceId || !status) return alert("Isi semua kolom QC!");
-      const res = await fetch(`${API_BASE}/qc`, {
+
+      await fetch(`${API_BASE}/qc`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId, status }),
       });
-      const data = await res.json();
-      alert(data.message || "QC ditambahkan!");
+
       renderTables();
     }
 
@@ -223,21 +242,20 @@
       const deviceId = document.getElementById("pairDeviceId").value.trim();
       const merchantId = document.getElementById("merchantId").value.trim();
       if (!deviceId || !merchantId) return alert("Isi semua kolom pairing!");
-      const res = await fetch(`${API_BASE}/pairing`, {
+
+      await fetch(`${API_BASE}/pairing`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId, merchantId }),
       });
-      const data = await res.json();
-      alert(data.message || "Pairing ditambahkan!");
+
       renderTables();
     }
 
     async function deleteItem(type, id) {
       if (!confirm(`Yakin hapus data ${type} dengan ID ${id}?`)) return;
-      const res = await fetch(`${API_BASE}/${type}/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      alert(data.message || "Data dihapus!");
+
+      await fetch(`${API_BASE}/${type}/${id}`, { method: "DELETE" });
       renderTables();
     }
 
@@ -251,13 +269,19 @@
       renderTables();
     }
 
+    // 🔹 NAVIGASI
+    function goDashboard() {
+      window.location.href = "dashboard.html";
+    }
+
     function logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
+      localStorage.removeItem("logged");
+      localStorage.removeItem("user");
       window.location.href = "login.html";
     }
 
     renderTables();
   </script>
+
 </body>
 </html>
