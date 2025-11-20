@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serving frontend folder
-app.use(express.static(path.join(__dirname, "/")));
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Fake Database
 let users = [
@@ -39,7 +39,7 @@ app.get("/api/dashboard", (req, res) => {
 // ROUTE FRONTEND DASHBOARD
 // ===============================
 app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "./dashboard.html"));
+  res.sendFile(path.join(__dirname, "../frontend/dashboard.html"));
 });
 
 // ✅ Register
@@ -114,52 +114,7 @@ app.delete("/api/clear", (req, res) => {
 
 // Default route → ke login
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "./login.html"));
+  res.sendFile(path.join(__dirname, "../frontend/login.html"));
 });
 
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "./login.html"));
-});
-
-app.get("/login.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "./login.html"));
-});
-
-app.get("/register", (req, res) => {
-  res.sendFile(path.join(__dirname, "./register.html"));
-});
-
-app.get("/register.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "./register.html"));
-});
-
-app.get("/index", (req, res) => {
-  res.sendFile(path.join(__dirname, "./index.html"));
-});
-
-app.get("/index.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "./index.html"));
-});
-
-app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "./dashboard.html"));
-});
-
-app.get("/dashboard.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "./dashboard.html"));
-});
-
-// =====================
-//  EXPORT untuk Vercel
-// =====================
-export default app;
-
-// =====================
-//  START SERVER (hanya untuk local development)
-// =====================
-if (process.env.VERCEL !== "1") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`✅ Server running http://localhost:${PORT}`);
-  });
-}
+app.listen(3000, () => console.log("✅ Server running http://localhost:3000"));
